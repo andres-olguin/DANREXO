@@ -1,0 +1,27 @@
+[
+  {
+    "id": "mask-email",
+    "messages": [
+      {"role": "system", "content": "Responde en español."},
+      {"role": "user", "content": "Correo ficticio: qa-sandbox@example.invalid"}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["Responde en español.", "Correo ficticio: [[EMAIL]]"]
+  },
+  {
+    "id": "block-sentinel",
+    "messages": [
+      {"role": "user", "content": "PROMPT_BLOCK_TEST"}
+    ],
+    "expected_action": "block",
+    "expected_contents": null
+  },
+  {
+    "id": "preserve-clean-text",
+    "messages": [
+      {"role": "user", "content": "Resumen de la reunión del equipo."}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["Resumen de la reunión del equipo."]
+  }
+]
