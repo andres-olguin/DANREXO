@@ -11,11 +11,14 @@ from services.audit import audit_prompt
 
 
 @pytest.fixture
-def mock_upstream():
+def mock_upstream(request):
+    respond = getattr(request, "param", None)
     requests: list[httpx.Request] = []
 
     def handle(request: httpx.Request) -> httpx.Response:
         requests.append(request)
+        if respond is not None:
+            return respond(request)
         return httpx.Response(200, json={"status": "ok"})
 
     with httpx.Client(
@@ -54,6 +57,10 @@ def sandbox_forward(mock_upstream, sandbox_token):
             messages.append({"role": message.role, "content": masked})
 
         # Limit the sandbox payload to the test model and masked messages.
-        return client.post("/chat", json={"model": "sandbox-only", "messages": messages})
+        body = {"model": "sandbox-only", "messages": messages}
+        if request.stream:
+            body["stream"] = True
+        outgoing = client.build_request("POST", "/chat", json=body)
+        return client.send(outgoing, stream=request.stream)
 
     return forward
