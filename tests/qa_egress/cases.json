@@ -49,5 +49,44 @@
     "messages": [{"role": "user", "content": "Colombia: cédula 52123456"}],
     "expected_action": "forward",
     "expected_contents": ["Colombia: cédula [[CEDULA]]"]
+  },
+  {
+    "id": "preserve-ticket-number",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Ticket de soporte: 52123456. Estado: en revisión."
+      }
+    ],
+    "expected_action": "forward",
+    "expected_contents": [
+      "Ticket de soporte: 52123456. Estado: en revisión."
+    ]
+  },
+  {
+    "id": "preserve-between-invalid-identifiers",
+    "messages": [
+      {
+        "role": "user",
+        "content": "RUT 12.345.678-0; CURP: FAXQ781332MBCVRL28."
+      }
+    ],
+    "expected_action": "forward",
+    "expected_contents": [
+      "RUT 12.345.678-0; CURP: FAXQ781332MBCVRL28."
+    ]
+  },
+  {
+    "id": "preserve-clean-json-list",
+    "messages": [
+      {
+        "role": "user",
+        "content": "{\"referencias\":[\"ORD-2026-0042\",\"equipo (arroba) ejemplo\"],\"ciudad\":\"Bogotá 📋\"}"
+      }
+    ],
+    "expected_action": "forward",
+    "expected_contents": [
+      "{\"referencias\":[\"ORD-2026-0042\",\"equipo (arroba) ejemplo\"],\"ciudad\":\"Bogotá 📋\"}"
+    ]
   }
 ]
