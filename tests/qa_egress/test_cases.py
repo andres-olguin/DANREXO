@@ -3,6 +3,7 @@
 import asyncio
 import json
 from pathlib import Path
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -33,7 +34,7 @@ FORWARD_CASES = [case for case in CASES if case["expected_action"] == "forward"]
 
 @pytest.mark.parametrize("case", FORWARD_CASES, ids=[case["id"] for case in FORWARD_CASES])
 def test_allowed_request_reaches_upstream_with_expected_body(
-    case, sandbox_forward, mock_upstream
+    case, sandbox_forward, mock_upstream, sandbox_token
 ):
     _, requests = mock_upstream
     extra_email = "excluded-field@example.invalid"
@@ -43,7 +44,8 @@ def test_allowed_request_reaches_upstream_with_expected_body(
             "model": "sandbox-only",
             "messages": case["messages"],
             "extra": {"contact": extra_email},
-        }
+        },
+        token=sandbox_token,
     )
 
     assert response is not None
@@ -62,13 +64,48 @@ def test_allowed_request_reaches_upstream_with_expected_body(
     }
 
 
-def test_blocked_request_never_reaches_upstream(sandbox_forward, mock_upstream):
+def test_blocked_request_never_reaches_upstream(
+    sandbox_forward, mock_upstream, sandbox_token
+):
     case = next(case for case in CASES if case["id"] == "block-sentinel")
     _, requests = mock_upstream
 
     response = sandbox_forward(
-        {"model": "sandbox-only", "messages": case["messages"]}
+        {"model": "sandbox-only", "messages": case["messages"]},
+        token=sandbox_token,
     )
 
     assert response is None
     assert len(requests) == 0
+
+
+def test_unauthenticated_request_never_reaches_upstream(sandbox_forward, mock_upstream):
+    case = next(case for case in CASES if case["id"] == "mask-email")
+    _, requests = mock_upstream
+    policy = AsyncMock(side_effect=AssertionError("Policy ran before authentication"))
+
+    response = sandbox_forward(
+        {"model": "sandbox-only", "messages": case["messages"]}, policy=policy
+    )
+
+    assert response is None
+    policy.assert_not_called()
+    assert not requests
+
+
+def test_policy_error_never_reaches_upstream(
+    sandbox_forward, mock_upstream, sandbox_token
+):
+    case = next(case for case in CASES if case["id"] == "mask-email")
+    _, requests = mock_upstream
+    policy = AsyncMock(side_effect=RuntimeError("Synthetic policy failure"))
+
+    with pytest.raises(RuntimeError, match="Synthetic policy failure"):
+        sandbox_forward(
+            {"model": "sandbox-only", "messages": case["messages"]},
+            token=sandbox_token,
+            policy=policy,
+        )
+
+    policy.assert_awaited_once()
+    assert not requests

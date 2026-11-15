@@ -27,13 +27,24 @@ def mock_upstream():
 
 
 @pytest.fixture
-def sandbox_forward(mock_upstream):
+def sandbox_token():
+    return "synthetic-sandbox-token"
+
+
+@pytest.fixture
+def sandbox_forward(mock_upstream, sandbox_token):
     """Wire the real detector to the in-memory provider for sandbox tests."""
     client, _ = mock_upstream
 
-    def forward(payload: dict) -> httpx.Response | None:
+    def forward(
+        payload: dict, *, token: str | None = None, policy=audit_prompt
+    ) -> httpx.Response | None:
+        # This fixed token only models authentication inside the sandbox.
+        if token != sandbox_token:
+            return None
+
         request = ChatRequest.model_validate(payload)
-        audit = asyncio.run(audit_prompt(request))
+        audit = asyncio.run(policy(request))
         if not audit.allowed:
             return None
 
