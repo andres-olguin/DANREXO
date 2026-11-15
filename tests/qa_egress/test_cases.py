@@ -24,9 +24,11 @@ def test_synthetic_case_matches_existing_components(case):
     audit = asyncio.run(audit_prompt(request))
     assert audit.allowed is (case["expected_action"] == "forward")
     if audit.allowed:
-        assert [redact(message.content)[0] for message in request.messages] == (
-            case["expected_contents"]
-        )
+        results = [redact(message.content) for message in request.messages]
+        assert [masked for masked, _ in results] == case["expected_contents"]
+        assert [
+            [finding._asdict() for finding in findings] for _, findings in results
+        ] == case["expected_spans"]
 
 
 FORWARD_CASES = [case for case in CASES if case["expected_action"] == "forward"]
