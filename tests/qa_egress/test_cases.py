@@ -1,4 +1,4 @@
-"""Validate the synthetic inputs before wiring them through the egress flow."""
+"""Validate synthetic inputs and check the sandbox egress payload."""
 
 import asyncio
 import json
@@ -26,3 +26,34 @@ def test_synthetic_case_matches_existing_components(case):
         assert [redact(message.content)[0] for message in request.messages] == (
             case["expected_contents"]
         )
+
+
+def test_allowed_request_reaches_upstream_with_masked_email(
+    sandbox_forward, mock_upstream
+):
+    case = next(case for case in CASES if case["id"] == "mask-email")
+    _, requests = mock_upstream
+    raw_email = case["messages"][-1]["content"].split()[-1]
+
+    response = sandbox_forward(
+        {
+            "model": "sandbox-only",
+            "messages": case["messages"],
+            "extra": {"contact": raw_email},
+        }
+    )
+
+    assert response is not None
+    assert response.status_code == 200
+    assert len(requests) == 1
+    body = requests[0].content
+    assert raw_email.encode("utf-8") not in body
+    assert json.loads(body) == {
+        "model": "sandbox-only",
+        "messages": [
+            {"role": message["role"], "content": masked}
+            for message, masked in zip(
+                case["messages"], case["expected_contents"], strict=True
+            )
+        ],
+    }
