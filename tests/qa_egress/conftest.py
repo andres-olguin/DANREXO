@@ -30,20 +30,25 @@ def mock_upstream(request):
 
 
 @pytest.fixture
-def sandbox_token():
-    return "synthetic-sandbox-token"
+def sandbox_tokens():
+    return {"A": "synthetic-sandbox-token", "B": "synthetic-sandbox-token-b"}
 
 
 @pytest.fixture
-def sandbox_forward(mock_upstream, sandbox_token):
+def sandbox_token(sandbox_tokens):
+    return sandbox_tokens["A"]
+
+
+@pytest.fixture
+def sandbox_forward(mock_upstream, sandbox_tokens):
     """Wire the real detector to the in-memory provider for sandbox tests."""
     client, _ = mock_upstream
 
     def forward(
         payload: dict, *, token: str | None = None, policy=audit_prompt
     ) -> httpx.Response | None:
-        # This fixed token only models authentication inside the sandbox.
-        if token != sandbox_token:
+        # The fixed tokens model authentication inside the sandbox.
+        if token not in sandbox_tokens.values():
             return None
 
         request = ChatRequest.model_validate(payload)
