@@ -23,5 +23,31 @@
     ],
     "expected_action": "forward",
     "expected_contents": ["Resumen de la reunión del equipo."]
+  },
+  {
+    "id": "cl-rut",
+    "messages": [{"role": "user", "content": "Chile: RUT 12.345.678-5"}],
+    "expected_action": "forward",
+    "expected_contents": ["Chile: RUT [[RUT]]"]
+  },
+  {
+    "id": "mx-curp-json-list",
+    "messages": [
+      {"role": "user", "content": "{\"datos\":[{\"curp\":\"FAXQ781106MBCVRL28\"},\"México\"]}"}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["{\"datos\":[{\"curp\":\"[[CURP]]\"},\"México\"]}"]
+  },
+  {
+    "id": "bo-ci-unicode",
+    "messages": [{"role": "user", "content": "📋 CÉDULA BOLIVIANA: 12345678"}],
+    "expected_action": "forward",
+    "expected_contents": ["📋 CÉDULA BOLIVIANA: [[CI_BO]]"]
+  },
+  {
+    "id": "co-cedula",
+    "messages": [{"role": "user", "content": "Colombia: cédula 52123456"}],
+    "expected_action": "forward",
+    "expected_contents": ["Colombia: cédula [[CEDULA]]"]
   }
 ]
