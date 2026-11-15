@@ -57,3 +57,15 @@ def test_allowed_request_reaches_upstream_with_masked_email(
             )
         ],
     }
+
+
+def test_blocked_request_never_reaches_upstream(sandbox_forward, mock_upstream):
+    case = next(case for case in CASES if case["id"] == "block-sentinel")
+    _, requests = mock_upstream
+
+    response = sandbox_forward(
+        {"model": "sandbox-only", "messages": case["messages"]}
+    )
+
+    assert response is None
+    assert len(requests) == 0
