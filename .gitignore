@@ -165,8 +165,9 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
-/site
+# Documentation generators may produce _site/; keep the tracked site/ frontend visible.
+# Do not ignore /site: GitHub Pages publishes this project's real frontend from site/.
+/_site/
 
 # mypy
 .mypy_cache/
