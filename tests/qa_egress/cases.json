@@ -1,0 +1,147 @@
+[
+  {
+    "id": "mask-email",
+    "messages": [
+      {"role": "system", "content": "Responde en español."},
+      {"role": "user", "content": "Correo ficticio: qa-sandbox@example.invalid"}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["Responde en español.", "Correo ficticio: [[EMAIL]]"],
+    "expected_spans": [[], [{"type": "EMAIL", "start": 17, "end": 43}]]
+  },
+  {
+    "id": "block-sentinel",
+    "messages": [
+      {"role": "user", "content": "PROMPT_BLOCK_TEST"}
+    ],
+    "expected_action": "block",
+    "expected_contents": null,
+    "expected_spans": [[]]
+  },
+  {
+    "id": "preserve-clean-text",
+    "messages": [
+      {"role": "user", "content": "Resumen de la reunión del equipo."}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["Resumen de la reunión del equipo."],
+    "expected_spans": [[]]
+  },
+  {
+    "id": "cl-rut",
+    "messages": [
+      {"role": "user", "content": "Chile: RUT 12.345.678-5"}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["Chile: RUT [[RUT]]"],
+    "expected_spans": [[{"type": "RUT", "start": 11, "end": 23}]]
+  },
+  {
+    "id": "mx-curp-json-list",
+    "messages": [
+      {"role": "user", "content": "{\"datos\":[{\"curp\":\"FAXQ781106MBCVRL28\"},\"México\"]}"}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["{\"datos\":[{\"curp\":\"[[CURP]]\"},\"México\"]}"],
+    "expected_spans": [[{"type": "CURP", "start": 19, "end": 37}]]
+  },
+  {
+    "id": "bo-ci-unicode",
+    "messages": [
+      {"role": "user", "content": "📋 CÉDULA BOLIVIANA: 12345678"}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["📋 CÉDULA BOLIVIANA: [[CI_BO]]"],
+    "expected_spans": [[{"type": "CI_BO", "start": 20, "end": 28}]]
+  },
+  {
+    "id": "co-cedula",
+    "messages": [
+      {"role": "user", "content": "Colombia: cédula 52123456"}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["Colombia: cédula [[CEDULA]]"],
+    "expected_spans": [[{"type": "CEDULA", "start": 17, "end": 25}]]
+  },
+  {
+    "id": "preserve-ticket-number",
+    "messages": [
+      {"role": "user", "content": "Ticket de soporte: 52123456. Estado: en revisión."}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["Ticket de soporte: 52123456. Estado: en revisión."],
+    "expected_spans": [[]]
+  },
+  {
+    "id": "preserve-between-invalid-identifiers",
+    "messages": [
+      {"role": "user", "content": "RUT 12.345.678-0; CURP: FAXQ781332MBCVRL28."}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["RUT 12.345.678-0; CURP: FAXQ781332MBCVRL28."],
+    "expected_spans": [[]]
+  },
+  {
+    "id": "preserve-clean-json-list",
+    "messages": [
+      {"role": "user", "content": "{\"referencias\":[\"ORD-2026-0042\",\"equipo (arroba) ejemplo\"],\"ciudad\":\"Bogotá 📋\"}"}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["{\"referencias\":[\"ORD-2026-0042\",\"equipo (arroba) ejemplo\"],\"ciudad\":\"Bogotá 📋\"}"],
+    "expected_spans": [[]]
+  },
+  {
+    "id": "mx-rfc",
+    "messages": [
+      {"role": "user", "content": "México: RFC BUÑQ920229M14. Ref. A-42."}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["México: RFC [[RFC]]. Ref. A-42."],
+    "expected_spans": [[{"type": "RFC", "start": 12, "end": 25}]]
+  },
+  {
+    "id": "co-nit",
+    "messages": [
+      {"role": "user", "content": "Colombia: NIT 800.197.268-4. Factura A-42."}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["Colombia: NIT [[NIT]]. Factura A-42."],
+    "expected_spans": [[{"type": "NIT", "start": 14, "end": 27}]]
+  },
+  {
+    "id": "bo-nit",
+    "messages": [
+      {"role": "user", "content": "Bolivia: NIT Bolivia: 123450026. Pedido A-42."}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["Bolivia: NIT Bolivia: [[NIT_BO]]. Pedido A-42."],
+    "expected_spans": [[{"type": "NIT_BO", "start": 22, "end": 31}]]
+  },
+  {
+    "id": "test-card",
+    "messages": [
+      {"role": "user", "content": "Tarjeta de prueba: 4111 1111 1111 1111. Pedido A-42."}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["Tarjeta de prueba: [[TARJETA]]. Pedido A-42."],
+    "expected_spans": [[{"type": "TARJETA", "start": 19, "end": 38}]]
+  },
+  {
+    "id": "cl-telephone",
+    "messages": [
+      {"role": "user", "content": "Chile: +56 9 8765 4321. Ext. A-42."}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["Chile: [[TELEFONO]]. Ext. A-42."],
+    "expected_spans": [[{"type": "TELEFONO", "start": 7, "end": 22}]]
+  },
+  {
+    "id": "co-telephone",
+    "messages": [
+      {"role": "user", "content": "Colombia: +57 300 123 4567. Ext. A-42."}
+    ],
+    "expected_action": "forward",
+    "expected_contents": ["Colombia: [[TELEFONO]]. Ext. A-42."],
+    "expected_spans": [[{"type": "TELEFONO", "start": 10, "end": 26}]]
+  }
+]
